@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../app/generated/prisma"
@@ -10,4 +8,27 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+}
+
+model ShortUrl {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  originalUrl String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  clicks      Click[]
+
+  @@index([createdAt])
+}
+
+model Click {
+  id         Int      @id @default(autoincrement())
+  shortUrlId Int
+  shortUrl   ShortUrl @relation(fields: [shortUrlId], references: [id], onDelete: Cascade)
+  referrer   String?
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([shortUrlId, createdAt])
 }
